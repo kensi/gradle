@@ -35,9 +35,11 @@ import org.gradle.api.internal.tasks.compile.JavaCompileSpec;
 import org.gradle.api.internal.tasks.compile.incremental.IncrementalCompilerFactory;
 import org.gradle.api.internal.tasks.compile.incremental.recomp.CompilationSourceDirs;
 import org.gradle.api.internal.tasks.compile.incremental.recomp.JavaRecompilationSpecProvider;
+import org.gradle.api.jpms.ModularClasspathHandling;
 import org.gradle.api.model.ReplacedBy;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.CompileClasspath;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
@@ -48,6 +50,8 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.internal.deprecation.DeprecationLogger;
 import org.gradle.internal.file.Deleter;
+import org.gradle.internal.jpms.DefaultModularClasspathHandling;
+import org.gradle.internal.jpms.JavaModuleDetector;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.jvm.internal.toolchain.JavaToolChainInternal;
 import org.gradle.jvm.platform.JavaPlatform;
@@ -59,6 +63,8 @@ import org.gradle.work.Incremental;
 import org.gradle.work.InputChanges;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -78,6 +84,7 @@ public class JavaCompile extends AbstractCompile {
     private final CompileOptions compileOptions;
     private JavaToolChain toolChain;
     private final FileCollection stableSources = getProject().files((Callable<Object[]>) () -> new Object[]{getSource(), getSources()});
+    private final ModularClasspathHandling modularClasspathHandling = new DefaultModularClasspathHandling();
 
     public JavaCompile() {
         CompileOptions compileOptions = getProject().getObjects().newInstance(CompileOptions.class);
@@ -189,6 +196,11 @@ public class JavaCompile extends AbstractCompile {
     }
 
     @Inject
+    protected JavaModuleDetector getJavaModuleDetector() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Inject
     protected JavaToolChainFactory getJavaToolChainFactory() {
         throw new UnsupportedOperationException();
     }
@@ -219,20 +231,36 @@ public class JavaCompile extends AbstractCompile {
     }
 
     private DefaultJavaCompileSpec createSpec() {
+        List<File> sourcesRoots = CompilationSourceDirs.inferSourceRoots((FileTreeInternal) getStableSources().getAsFileTree());
+        JavaModuleDetector javaModuleDetector = getJavaModuleDetector();
+        boolean isModule = JavaModuleDetector.isModuleSource(sourcesRoots);
+
         final DefaultJavaCompileSpec spec = new DefaultJavaCompileSpecFactory(compileOptions).create();
         spec.setDestinationDir(getDestinationDirectory().getAsFile().get());
         spec.setWorkingDir(getProjectLayout().getProjectDirectory().getAsFile());
         spec.setTempDir(getTemporaryDir());
-        spec.setCompileClasspath(ImmutableList.copyOf(getClasspath()));
+        spec.setCompileClasspath(javaModuleDetector.inferClasspath(isModule, modularClasspathHandling, getClasspath()));
+        spec.setModulePath(ImmutableList.copyOf(javaModuleDetector.inferModulePath(isModule, modularClasspathHandling, getClasspath())));
         spec.setAnnotationProcessorPath(compileOptions.getAnnotationProcessorPath() == null ? ImmutableList.of() : ImmutableList.copyOf(compileOptions.getAnnotationProcessorPath()));
         spec.setTargetCompatibility(getTargetCompatibility());
         spec.setSourceCompatibility(getSourceCompatibility());
         spec.setCompileOptions(compileOptions);
-        spec.setSourcesRoots(CompilationSourceDirs.inferSourceRoots((FileTreeInternal) getStableSources().getAsFileTree()));
+        spec.setSourcesRoots(sourcesRoots);
         if (((JavaToolChainInternal) getToolChain()).getJavaVersion().compareTo(JavaVersion.VERSION_1_8) < 0) {
             spec.getCompileOptions().setHeaderOutputDirectory(null);
         }
         return spec;
+    }
+
+    /**
+     * Returns the module path handling of this compile task.
+     *
+     * @since 6.4
+     */
+    @Incubating
+    @Input
+    public ModularClasspathHandling getModularClasspathHandling() {
+        return modularClasspathHandling;
     }
 
     /**

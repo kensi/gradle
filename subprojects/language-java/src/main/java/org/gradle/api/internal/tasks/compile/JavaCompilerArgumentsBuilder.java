@@ -255,8 +255,16 @@ public class JavaCompilerArgumentsBuilder {
         }
 
         List<File> classpath = spec.getCompileClasspath();
-        args.add("-classpath");
-        args.add(classpath == null ? "" : Joiner.on(File.pathSeparatorChar).join(classpath));
+        List<File> modulePath = spec.getModulePath();
+
+        if (!classpath.isEmpty()) {
+            args.add("-classpath");
+            args.add(Joiner.on(File.pathSeparatorChar).join(classpath));
+        }
+        if (!modulePath.isEmpty()) {
+            args.add("--module-path");
+            args.add(Joiner.on(File.pathSeparatorChar).join(modulePath));
+        }
     }
 
     private void addSourceFiles() {
