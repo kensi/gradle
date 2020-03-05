@@ -30,6 +30,7 @@ import org.gradle.cache.internal.FileContentCacheFactory;
 import org.gradle.internal.build.event.BuildEventListenerFactory;
 import org.gradle.internal.hash.FileHasher;
 import org.gradle.internal.hash.StreamHasher;
+import org.gradle.internal.jpms.JavaModuleDetector;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.service.ServiceRegistration;
 import org.gradle.internal.service.scopes.AbstractPluginServiceRegistry;
@@ -79,6 +80,10 @@ public class JavaLanguagePluginServiceRegistry extends AbstractPluginServiceRegi
 
         public AnnotationProcessorDetector createAnnotationProcessorDetector(FileContentCacheFactory cacheFactory, LoggingConfiguration loggingConfiguration) {
             return new AnnotationProcessorDetector(cacheFactory, LoggerFactory.getLogger(AnnotationProcessorDetector.class), loggingConfiguration.getShowStacktrace() != ShowStacktrace.INTERNAL_EXCEPTIONS);
+        }
+
+        public JavaModuleDetector createJavaModuleDetector(FileContentCacheFactory cacheFactory) {
+            return new JavaModuleDetector(cacheFactory);
         }
     }
 
