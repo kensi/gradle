@@ -53,6 +53,7 @@ abstract class AbstractMavenModule extends AbstractModule implements MavenModule
     private final List<VariantMetadataSpec> variants = [new VariantMetadataSpec("api", [(Usage.USAGE_ATTRIBUTE.name): Usage.JAVA_API, (LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.name): LibraryElements.JAR, (Category.CATEGORY_ATTRIBUTE.name): Category.LIBRARY]),
                                                         new VariantMetadataSpec("runtime", [(Usage.USAGE_ATTRIBUTE.name): Usage.JAVA_RUNTIME, (LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE.name): LibraryElements.JAR, (Category.CATEGORY_ATTRIBUTE.name): Category.LIBRARY])]
     private final List dependencies = []
+    private Map<String, ?> mainArtifact = [:]
     private final List artifacts = []
     private boolean extraChecksums = true
 
@@ -202,6 +203,11 @@ abstract class AbstractMavenModule extends AbstractModule implements MavenModule
         return variantMetadata
     }
 
+    MavenModule mainArtifact(Map<String, ?> options) {
+        mainArtifact = options
+        return this
+    }
+
     /**
      * Adds an additional artifact to this module.
      * @param options Can specify any of: type or classifier
@@ -210,6 +216,8 @@ abstract class AbstractMavenModule extends AbstractModule implements MavenModule
         artifacts << options
         return this
     }
+
+
 
     /**
      * Same as {@link #artifact(Map)} since all additional artifacts are undeclared in maven.
@@ -492,7 +500,7 @@ abstract class AbstractMavenModule extends AbstractModule implements MavenModule
 
     protected Map<String, Object> toArtifact(Map<String, ?> options) {
         options = new HashMap<String, Object>(options)
-        def artifact = [type: options.containsKey('type') ? options.remove('type') : type, classifier: options.remove('classifier') ?: null, name: options.containsKey('name') ? options.remove('name') : null]
+        def artifact = [type: options.containsKey('type') ? options.remove('type') : type, classifier: options.remove('classifier') ?: null, name: options.containsKey('name') ? options.remove('name') : null, content: options.containsKey('content') ? options.remove('content') : null]
         assert options.isEmpty(): "Unknown options : ${options.keySet()}"
         return artifact
     }
@@ -716,7 +724,7 @@ abstract class AbstractMavenModule extends AbstractModule implements MavenModule
             publishArtifact(artifact)
         }
         if (type != 'pom') {
-            publishArtifact([:])
+            publishArtifact(mainArtifact)
         }
 
         variants.each {
@@ -734,9 +742,9 @@ abstract class AbstractMavenModule extends AbstractModule implements MavenModule
     File publishArtifact(Map<String, ?> artifact) {
         def artifactFile = artifactFile(artifact)
 
-        publish(artifactFile) { Writer writer ->
+        publish(artifactFile, { Writer writer ->
             writer << "${artifactFile.name} : $artifactContent"
-        }
+        }, (byte[]) artifact.content)
         return artifactFile
     }
 
