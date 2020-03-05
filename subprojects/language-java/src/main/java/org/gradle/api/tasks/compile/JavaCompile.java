@@ -19,6 +19,7 @@ package org.gradle.api.tasks.compile;
 import com.google.common.collect.ImmutableList;
 import org.gradle.api.Incubating;
 import org.gradle.api.JavaVersion;
+import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.ProjectLayout;
@@ -248,6 +249,9 @@ public class JavaCompile extends AbstractCompile {
         spec.setSourcesRoots(sourcesRoots);
         if (((JavaToolChainInternal) getToolChain()).getJavaVersion().compareTo(JavaVersion.VERSION_1_8) < 0) {
             spec.getCompileOptions().setHeaderOutputDirectory(null);
+        }
+        if (getProject().getVersion() != Project.DEFAULT_VERSION) {
+            spec.setModuleVersion(getProject().getVersion().toString());
         }
         return spec;
     }

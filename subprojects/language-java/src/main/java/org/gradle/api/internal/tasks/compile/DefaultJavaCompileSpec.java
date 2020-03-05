@@ -32,6 +32,7 @@ public class DefaultJavaCompileSpec extends DefaultJvmLanguageCompileSpec implem
     private Set<String> classes;
     private List<File> modulePath;
     private List<File> sourceRoots;
+    private String moduleVersion;
 
     @Override
     public MinimalJavaCompileOptions getCompileOptions() {
@@ -93,6 +94,16 @@ public class DefaultJavaCompileSpec extends DefaultJvmLanguageCompileSpec implem
     @Override
     public void setModulePath(List<File> modulePath) {
         this.modulePath = modulePath;
+    }
+
+    @Override
+    public String getModuleVersion() {
+        return moduleVersion;
+    }
+
+    @Override
+    public void setModuleVersion(String moduleVersion) {
+        this.moduleVersion = moduleVersion;
     }
 
     @Override

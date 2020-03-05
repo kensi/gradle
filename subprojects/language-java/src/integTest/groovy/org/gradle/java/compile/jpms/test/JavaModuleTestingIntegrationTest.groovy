@@ -108,6 +108,8 @@ class JavaModuleTestingIntegrationTest extends AbstractJavaModuleIntegrationTest
         outputContains 'java.lang.AssertionError at MainModuleTest.java:11'
     }
 
+    //TODO once running ad module is implemented, add a test reflectively checking that the module version was baked in: module.getDescriptor().rawVersion()
+
     protected testModuleClass(String statement = 'new consumer.MainModule()') {
         file('src/test/java/consumer/test/MainModuleTest.java').text = """
             package consumer.test;
