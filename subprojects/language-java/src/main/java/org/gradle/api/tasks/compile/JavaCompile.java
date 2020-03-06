@@ -85,7 +85,7 @@ public class JavaCompile extends AbstractCompile {
     private final CompileOptions compileOptions;
     private JavaToolChain toolChain;
     private final FileCollection stableSources = getProject().files((Callable<Object[]>) () -> new Object[]{getSource(), getSources()});
-    private final ModularClasspathHandling modularClasspathHandling = new DefaultModularClasspathHandling();
+    private final ModularClasspathHandling modularClasspathHandling;
 
     public JavaCompile() {
         CompileOptions compileOptions = getProject().getObjects().newInstance(CompileOptions.class);
@@ -96,6 +96,8 @@ public class JavaCompile extends AbstractCompile {
         ((PropertyInternal<?>) compileOptions.getGeneratedSourceOutputDirectory()).attachProducer(this);
 
         CompilerForkUtils.doNotCacheIfForkingViaExecutable(compileOptions, getOutputs());
+
+        modularClasspathHandling = new DefaultModularClasspathHandling(getProject().getObjects());
     }
 
     /**
@@ -262,7 +264,7 @@ public class JavaCompile extends AbstractCompile {
      * @since 6.4
      */
     @Incubating
-    @Input
+    @Nested
     public ModularClasspathHandling getModularClasspathHandling() {
         return modularClasspathHandling;
     }

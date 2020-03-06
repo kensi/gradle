@@ -22,6 +22,7 @@ import org.gradle.api.jpms.ModularClasspathHandling
 import org.gradle.cache.internal.TestFileContentCacheFactory
 import org.gradle.test.fixtures.file.TestNameTestDirectoryProvider
 import org.gradle.util.JarUtils
+import org.gradle.util.TestUtil
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -32,10 +33,10 @@ class JavaModuleDetectorTest extends Specification {
 
     TestFileContentCacheFactory cacheFactory = new TestFileContentCacheFactory()
     JavaModuleDetector moduleDetector = new JavaModuleDetector(cacheFactory)
-    ModularClasspathHandling modularClasspathHandling = new DefaultModularClasspathHandling()
+    ModularClasspathHandling modularClasspathHandling = new DefaultModularClasspathHandling(TestUtil.objectFactory())
 
     def setup() {
-        modularClasspathHandling.inferModulePath = true
+        modularClasspathHandling.inferModulePath.set(true)
     }
 
     def "detects modules on classpath"() {

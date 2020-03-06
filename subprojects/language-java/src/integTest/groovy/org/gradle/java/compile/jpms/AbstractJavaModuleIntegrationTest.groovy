@@ -42,7 +42,7 @@ abstract class AbstractJavaModuleIntegrationTest extends AbstractIntegrationSpec
             }
 
             tasks.withType(JavaCompile) {
-                modularClasspathHandling.inferModulePath = true
+                modularClasspathHandling.inferModulePath.set(true)
             }
         """
     }

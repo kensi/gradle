@@ -17,6 +17,8 @@
 package org.gradle.api.jpms;
 
 import org.gradle.api.Incubating;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
 
 /**
  * Description of the modularity of a classpath.
@@ -50,10 +52,6 @@ public interface ModularClasspathHandling {
      *   <li>It is a jar with a MANIFEST that contains an 'Automatic-Module-Name' entry.
      * </ul>
      */
-    boolean getInferModulePath();
-
-    /**
-     * Define if a module path should be inferred. If not, all classpath entries will be passed to --classpath.
-     */
-    void setInferModulePath(boolean inferModulePath);
+    @Input
+    Property<Boolean> getInferModulePath();
 }

@@ -17,20 +17,19 @@
 package org.gradle.internal.jpms;
 
 import org.gradle.api.jpms.ModularClasspathHandling;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 
-import java.io.Serializable;
+public class DefaultModularClasspathHandling implements ModularClasspathHandling {
 
-public class DefaultModularClasspathHandling implements ModularClasspathHandling, Serializable {
+    private Property<Boolean> inferModulePath;
 
-    private boolean inferModulePath;
-
-    @Override
-    public boolean getInferModulePath() {
-        return inferModulePath;
+    public DefaultModularClasspathHandling(ObjectFactory objects) {
+        inferModulePath = objects.property(Boolean.class).convention(false);
     }
 
     @Override
-    public void setInferModulePath(boolean inferModulePath) {
-        this.inferModulePath = inferModulePath;
+    public Property<Boolean> getInferModulePath() {
+        return inferModulePath;
     }
 }

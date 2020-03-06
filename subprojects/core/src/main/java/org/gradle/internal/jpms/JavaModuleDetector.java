@@ -53,7 +53,7 @@ public class JavaModuleDetector {
         if (!forModule) {
             return ImmutableList.copyOf(classpath);
         }
-        if (modularClasspathHandling.getInferModulePath()) {
+        if (modularClasspathHandling.getInferModulePath().get()) {
             return ImmutableList.copyOf(classpath.filter(classpathFilter));
         }
         return ImmutableList.copyOf(classpath);
@@ -66,7 +66,7 @@ public class JavaModuleDetector {
         if (!forModule) {
             return ImmutableList.of();
         }
-        if (modularClasspathHandling.getInferModulePath()) {
+        if (modularClasspathHandling.getInferModulePath().get()) {
             return ImmutableList.copyOf(classpath.filter(modulePathFilter));
         }
         return ImmutableList.of();

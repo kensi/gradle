@@ -143,7 +143,7 @@ class JavaModuleCompileIntegrationTest extends AbstractJavaModuleIntegrationTest
                 maven { url '${mavenRepo.uri}' }
             }
             tasks.withType(JavaCompile) {
-                modularClasspathHandling.inferModulePath = true
+                modularClasspathHandling.inferModulePath.set(true)
             }
             dependencies {
                 api 'org:moda:1.0'
