@@ -40,11 +40,11 @@ class JavaModuleDetectorTest extends Specification {
     }
 
     def "detects modules on classpath"() {
-        def path = path('lib.jar', 'module.jar', 'classes', 'classes-module', 'automaticModule.jar')
+        def path = path('lib.jar', 'module.jar', 'classes', 'classes-module', 'automaticModule.jar', 'mrjarModule.jar')
 
         expect:
         inferClasspath(path) == ['lib.jar', 'classes']
-        inferModulePath(path) == ['module.jar', 'classes-module', 'automaticModule.jar']
+        inferModulePath(path) == ['module.jar', 'classes-module', 'automaticModule.jar', 'mrjarModule.jar']
     }
 
     def "filters out directories that do not exist"() {
@@ -85,6 +85,8 @@ class JavaModuleDetectorTest extends Specification {
                 }
                 if (entry.startsWith('module')) {
                     jar << JarUtils.jarWithContents(('META-INF/MANIFEST.MF'): manifest.join('\n') + '\n', ('module-info.class'): '')
+                } else if (entry.startsWith('mrjar')) {
+                    jar << JarUtils.jarWithContents(('META-INF/MANIFEST.MF'): manifest.join('\n') + '\n', ('META-INF/versions/10/module-info.class'): '')
                 } else {
                     jar << JarUtils.jarWithContents(('META-INF/MANIFEST.MF'): manifest.join('\n') + '\n')
                 }

@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 public class JavaModuleDetector {
@@ -39,6 +40,8 @@ public class JavaModuleDetector {
     private static final String MODULE_INFO_SOURCE_FILE = "module-info.java";
     private static final String MODULE_INFO_CLASS_FILE = "module-info.class";
     private static final String AUTOMATIC_MODULE_NAME_ATTRIBUTE = "Automatic-Module-Name";
+
+    private static final Pattern MODULE_INFO_CLASS_MRJAR_PATH = Pattern.compile("META-INF/versions/\\d+/module-info.class");
 
     private final FileContentCache<Boolean> cache;
 
@@ -125,7 +128,7 @@ public class JavaModuleDetector {
                 }
                 ZipEntry next = jarStream.getNextEntry();
                 while (next != null) {
-                    if (next.getName().equals(MODULE_INFO_CLASS_FILE)) {
+                    if (next.getName().equals(MODULE_INFO_CLASS_FILE) || MODULE_INFO_CLASS_MRJAR_PATH.matcher(next.getName()).matches()) {
                         return true;
                     }
                     next = jarStream.getNextEntry();
