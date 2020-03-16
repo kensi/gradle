@@ -17,6 +17,7 @@
 package org.gradle.java.compile.jpms.compile
 
 import org.gradle.java.compile.jpms.AbstractJavaModuleIntegrationTest
+import org.gradle.util.TestPrecondition
 
 class JavaModuleCompileIntegrationTest extends AbstractJavaModuleIntegrationTest {
 
@@ -104,8 +105,7 @@ class JavaModuleCompileIntegrationTest extends AbstractJavaModuleIntegrationTest
         fails ':compileJava'
 
         then:
-        // why does it not say but 'module consumer does not read it' in this error? (There is no module 'moda')
-        failure.assertHasErrorOutput '(package moda is declared in the unnamed module, but module moda does not read it)'
+        failure.assertHasErrorOutput unnamedModuleReadError('moda', 'moda', 'consumer')
     }
 
     def "compiles a module depending on a plain Java library when adding access to unnamed module"() {
@@ -189,7 +189,16 @@ class JavaModuleCompileIntegrationTest extends AbstractJavaModuleIntegrationTest
         fails ':compileJava'
 
         then:
-        failure.assertHasErrorOutput '(package moda is declared in the unnamed module, but module moda does not read it)'
+        failure.assertHasErrorOutput unnamedModuleReadError('moda', 'moda', 'consumer')
+    }
+
+    private static String unnamedModuleReadError(String packageName, String producer, String consumer) {
+        if (TestPrecondition.JDK13_OR_EARLIER.fulfilled) {
+            // bug in JDK < 14 that prints the producer (instead of the consumer) name in the error message
+            "(package $packageName is declared in the unnamed module, but module $producer does not read it)"
+        } else {
+            "(package $packageName is declared in the unnamed module, but module $consumer does not read it)"
+        }
     }
 
 }
