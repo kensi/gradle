@@ -44,6 +44,7 @@ public class MinimalJavaCompileOptions implements Serializable {
     private boolean warnings;
     private File annotationProcessorGeneratedSourcesDirectory;
     private File headerOutputDirectory;
+    private String javaModuleVersion;
 
     public MinimalJavaCompileOptions(final CompileOptions compileOptions) {
         FileCollection sourcepath = compileOptions.getSourcepath();
@@ -62,6 +63,7 @@ public class MinimalJavaCompileOptions implements Serializable {
         this.warnings = compileOptions.isWarnings();
         this.annotationProcessorGeneratedSourcesDirectory = compileOptions.getGeneratedSourceOutputDirectory().getAsFile().getOrNull();
         this.headerOutputDirectory = compileOptions.getHeaderOutputDirectory().getAsFile().getOrNull();
+        this.javaModuleVersion = compileOptions.getJavaModuleVersion().getOrNull();
     }
 
     @Nullable
@@ -188,5 +190,13 @@ public class MinimalJavaCompileOptions implements Serializable {
 
     public void setHeaderOutputDirectory(@Nullable File headerOutputDirectory) {
         this.headerOutputDirectory = headerOutputDirectory;
+    }
+
+    public String getJavaModuleVersion() {
+        return javaModuleVersion;
+    }
+
+    public void setJavaModuleVersion(String javaModuleVersion) {
+        this.javaModuleVersion = javaModuleVersion;
     }
 }

@@ -37,6 +37,7 @@ import org.gradle.api.internal.tasks.compile.incremental.IncrementalCompilerFact
 import org.gradle.api.internal.tasks.compile.incremental.recomp.CompilationSourceDirs;
 import org.gradle.api.internal.tasks.compile.incremental.recomp.JavaRecompilationSpecProvider;
 import org.gradle.api.jpms.ModularClasspathHandling;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.model.ReplacedBy;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.CompileClasspath;
@@ -87,7 +88,9 @@ public class JavaCompile extends AbstractCompile {
     private final ModularClasspathHandling modularClasspathHandling;
 
     public JavaCompile() {
-        CompileOptions compileOptions = getProject().getObjects().newInstance(CompileOptions.class);
+        Project project = getProject();
+        ObjectFactory objects = project.getObjects();
+        CompileOptions compileOptions = objects.newInstance(CompileOptions.class);
         this.compileOptions = compileOptions;
 
         // Work around for https://github.com/gradle/gradle/issues/6619
@@ -96,7 +99,15 @@ public class JavaCompile extends AbstractCompile {
 
         CompilerForkUtils.doNotCacheIfForkingViaExecutable(compileOptions, getOutputs());
 
-        modularClasspathHandling = new DefaultModularClasspathHandling(getProject().getObjects());
+        compileOptions.getJavaModuleVersion().convention(project.provider(() -> {
+            String version = project.getVersion().toString();
+            if (Project.DEFAULT_VERSION.equals(version)) {
+                return null;
+            }
+            return version;
+        }));
+
+        this.modularClasspathHandling = objects.newInstance(DefaultModularClasspathHandling.class);
     }
 
     /**
@@ -250,9 +261,6 @@ public class JavaCompile extends AbstractCompile {
         spec.setSourcesRoots(sourcesRoots);
         if (((JavaToolChainInternal) getToolChain()).getJavaVersion().compareTo(JavaVersion.VERSION_1_8) < 0) {
             spec.getCompileOptions().setHeaderOutputDirectory(null);
-        }
-        if (getProject().getVersion() != Project.DEFAULT_VERSION) {
-            spec.setModuleVersion(getProject().getVersion().toString());
         }
         return spec;
     }

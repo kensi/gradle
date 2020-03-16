@@ -20,10 +20,13 @@ import org.gradle.api.jpms.ModularClasspathHandling;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
+import javax.inject.Inject;
+
 public class DefaultModularClasspathHandling implements ModularClasspathHandling {
 
     private Property<Boolean> inferModulePath;
 
+    @Inject
     public DefaultModularClasspathHandling(ObjectFactory objects) {
         inferModulePath = objects.property(Boolean.class).convention(false);
     }

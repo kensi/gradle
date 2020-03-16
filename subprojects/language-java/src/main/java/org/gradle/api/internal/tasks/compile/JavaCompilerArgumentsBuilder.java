@@ -256,7 +256,7 @@ public class JavaCompilerArgumentsBuilder {
 
         List<File> classpath = spec.getCompileClasspath();
         List<File> modulePath = spec.getModulePath();
-        String moduleVersion = spec.getModuleVersion();
+        String moduleVersion = spec.getCompileOptions().getJavaModuleVersion();
 
         if (!classpath.isEmpty()) {
             args.add("-classpath");

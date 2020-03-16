@@ -29,7 +29,7 @@ import spock.lang.Specification
 class JavaModuleDetectorTest extends Specification {
 
     @Rule
-    TestNameTestDirectoryProvider tmpDir = new TestNameTestDirectoryProvider()
+    TestNameTestDirectoryProvider tmpDir = new TestNameTestDirectoryProvider(JavaModuleDetectorTest)
 
     TestFileContentCacheFactory cacheFactory = new TestFileContentCacheFactory()
     JavaModuleDetector moduleDetector = new JavaModuleDetector(cacheFactory)
