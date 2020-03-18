@@ -115,9 +115,9 @@ class InstantExecutionUnsupportedTypesIntegrationTest extends AbstractInstantExe
         instantRun "broken"
 
         then:
-        expectInstantExecutionProblems(
-            "- field 'badReference' from type 'SomeTask': cannot serialize object of type '${concreteType.name}', a subtype of '${baseType.name}', as these are not supported with instant execution.",
-            "- field 'badReference' from type 'SomeBean': cannot serialize object of type '${concreteType.name}', a subtype of '${baseType.name}', as these are not supported with instant execution."
+        expectInstantExecutionWarnings(
+            "field 'badReference' from type 'SomeTask': cannot serialize object of type '${concreteType.name}', a subtype of '${baseType.name}', as these are not supported with instant execution.",
+            "field 'badReference' from type 'SomeBean': cannot serialize object of type '${concreteType.name}', a subtype of '${baseType.name}', as these are not supported with instant execution."
         )
 
         when:
