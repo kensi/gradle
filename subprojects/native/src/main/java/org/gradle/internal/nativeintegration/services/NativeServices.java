@@ -25,6 +25,9 @@ import net.rubygrapefruit.platform.WindowsRegistry;
 import net.rubygrapefruit.platform.file.Files;
 import net.rubygrapefruit.platform.file.PosixFiles;
 import net.rubygrapefruit.platform.internal.DefaultProcessLauncher;
+import net.rubygrapefruit.platform.internal.jni.LinuxFileEventFunctions;
+import net.rubygrapefruit.platform.internal.jni.OsxFileEventFunctions;
+import net.rubygrapefruit.platform.internal.jni.WindowsFileEventFunctions;
 import net.rubygrapefruit.platform.memory.Memory;
 import net.rubygrapefruit.platform.terminal.Terminals;
 import org.gradle.api.JavaVersion;
@@ -110,6 +113,23 @@ public class NativeServices extends DefaultServiceRegistry implements ServiceReg
                     if (initializeJansi) {
                         JANSI_BOOT_PATH_CONFIGURER.configure(nativeBaseDir);
                     }
+
+                    if (useNativeIntegrations) {
+                        // Initialize FileSystemEvents API
+                        OperatingSystem currentOs = OperatingSystem.current();
+                        try {
+                            if (currentOs.isWindows()) {
+                                Native.get(WindowsFileEventFunctions.class);
+                            } else if (currentOs.isLinux()) {
+                                Native.get(LinuxFileEventFunctions.class);
+                            } else if (currentOs.isMacOsX()) {
+                                Native.get(OsxFileEventFunctions.class);
+                            }
+                        } catch (NativeIntegrationUnavailableException ex) {
+                            LOGGER.debug("Native-platform file events API is not available.");
+                        }
+                    }
+
                     LOGGER.info("Initialized native services in: " + nativeBaseDir);
                 }
                 initialized = true;
