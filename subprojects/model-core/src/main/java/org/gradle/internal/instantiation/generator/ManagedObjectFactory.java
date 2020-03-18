@@ -77,7 +77,7 @@ public class ManagedObjectFactory {
         if (type.isAssignableFrom(RegularFileProperty.class)) {
             return attachOwner(getObjectFactory().fileProperty(), owner, propertyName);
         }
-        return instantiator.newInstanceWithDisplayName(type, displayNameFor(owner, propertyName));
+        return attachOwner(instantiator.newInstanceWithDisplayName(type, displayNameFor(owner, propertyName)), owner, propertyName);
     }
 
     // Called from generated code
