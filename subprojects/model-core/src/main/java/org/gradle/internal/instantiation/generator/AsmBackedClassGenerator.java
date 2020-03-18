@@ -320,6 +320,9 @@ public class AsmBackedClassGenerator extends AbstractClassGenerator {
         @Override
         public void attachDuringConstruction(PropertyMetadata property, boolean applyRole) {
             propertiesToAttach.add(Pair.of(property, applyRole));
+            if (applyRole) {
+                requiresFactory = true;
+            }
         }
 
         @Override
