@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -222,6 +223,7 @@ public class HttpClientHelper implements Closeable {
         if (client == null) {
             HttpClientBuilder builder = HttpClientBuilder.create();
             new HttpClientConfigurer(settings).configure(builder);
+            builder.setRetryHandler(new DefaultHttpRequestRetryHandler(3, true));
             this.client = builder.build();
         }
         return client;
